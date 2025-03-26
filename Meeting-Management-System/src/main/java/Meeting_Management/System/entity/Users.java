@@ -3,11 +3,10 @@ package Meeting_Management.System.entity;
 import jakarta.persistence.*;
 
 import java.time.ZonedDateTime;
-import java.util.Date;
 
 @Entity
 @Table(name = "users", schema = "admin")
-public class User {
+public class Users {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

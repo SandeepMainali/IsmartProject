@@ -4,11 +4,14 @@ import Meeting_Management.System.DTO.*;
 import Meeting_Management.System.entity.*;
 import lombok.experimental.UtilityClass;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @UtilityClass
 public class ConvertUtility {
 
     //ConvertUtil For User
-    public static UserDTO ConvertUtilityUser(User user) {
+    public static UserDTO ConvertUtilityUser(Users user) {
         UserDTO userDTO = new UserDTO();
         userDTO.setId(user.getId());
         userDTO.setBranch(user.getBranch());
@@ -32,6 +35,13 @@ public class ConvertUtility {
         userDTO.setEditUser(user.getEditUser());
         userDTO.setEditDate(user.getEditDate());
         return userDTO;
+    }
+
+    // Convert a list of Users objects to a list of UserDTOs
+    public static List<UserDTO> ConvertUtilityUser(List<Users> usersList) {
+        return usersList.stream()
+                .map(ConvertUtility::ConvertUtilityUser) // Convert each Users object to UserDTO
+                .collect(Collectors.toList());
     }
 
     //ConvertUtil For Roles
