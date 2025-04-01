@@ -5,7 +5,7 @@ import java.time.ZonedDateTime;
 
 @Data
 @Entity
-@Table(name = "branch_infos", schema = "admin")
+@Table(name ="branch_infos", schema ="admin")
 public class BranchInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

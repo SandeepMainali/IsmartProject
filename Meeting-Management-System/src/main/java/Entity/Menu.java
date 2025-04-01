@@ -8,7 +8,7 @@ import java.time.ZonedDateTime;
 
 @Data
 @Entity
-@Table(name = "menus", schema = "admin")
+@Table(name ="menus", schema ="admin")
 public class Menu {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

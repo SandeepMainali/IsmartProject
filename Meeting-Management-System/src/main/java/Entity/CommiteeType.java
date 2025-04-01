@@ -5,7 +5,7 @@ import java.time.ZonedDateTime;
 
 @Data
 @Entity
-@Table(name = "commitee_types", schema = "minut")
+@Table(name="commitee_types", schema ="minut")
 public class CommiteeType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

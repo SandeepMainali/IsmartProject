@@ -6,7 +6,7 @@ import java.time.ZonedDateTime;
 
 @Data
 @Entity
-@Table(name = "members", schema = "minut")
+@Table(name ="members", schema ="minut")
 public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
