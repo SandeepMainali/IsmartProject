@@ -184,6 +184,90 @@ public class BranchInfoService implements IBranchInfoService {
                 }
             }
 
+            // Check for duplicate brAlias
+            if (branchInfoDTO.getBrAlias() != null &&
+                    branchInfoRepository.findBybrAlias(branchInfoDTO.getBrAlias()).isPresent()) {
+                return new ResponseDTO(
+                        "error",
+                        "400",
+                        "Branch with alias '" + branchInfoDTO.getBrAlias() + "' already exists",
+                        null,
+                        null
+                );
+            }
+
+            // Check for duplicate fullName
+            if (branchInfoDTO.getFullName() != null &&
+                    branchInfoRepository.existsByFullName(branchInfoDTO.getFullName())) {
+                return new ResponseDTO(
+                        "error",
+                        "400",
+                        "Branch with full name '" + branchInfoDTO.getFullName() + "' already exists",
+                        null,
+                        null
+                );
+            }
+
+            // Check for duplicate fullNameLocale
+            if (branchInfoDTO.getFullNameLocale() != null &&
+                    branchInfoRepository.existsByFullNameLocale(branchInfoDTO.getFullNameLocale())) {
+                return new ResponseDTO(
+                        "error",
+                        "400",
+                        "Branch with locale full name '" + branchInfoDTO.getFullNameLocale() + "' already exists",
+                        null,
+                        null
+                );
+            }
+
+            // Check for duplicate shortName
+            if (branchInfoDTO.getShortName() != null &&
+                    branchInfoRepository.existsByShortName(branchInfoDTO.getShortName())) {
+                return new ResponseDTO(
+                        "error",
+                        "400",
+                        "Branch with short name '" + branchInfoDTO.getShortName() + "' already exists",
+                        null,
+                        null
+                );
+            }
+
+            // Check for duplicate regNo if provided
+            if (branchInfoDTO.getRegNo() != null &&
+                    branchInfoRepository.existsByRegNo(branchInfoDTO.getRegNo())) {
+                return new ResponseDTO(
+                        "error",
+                        "400",
+                        "Branch with registration number '" + branchInfoDTO.getRegNo() + "' already exists",
+                        null,
+                        null
+                );
+            }
+
+            // Check for duplicate PAN if provided
+            if (branchInfoDTO.getPan() != null &&
+                    branchInfoRepository.existsByPan(branchInfoDTO.getPan())) {
+                return new ResponseDTO(
+                        "error",
+                        "400",
+                        "Branch with PAN '" + branchInfoDTO.getPan() + "' already exists",
+                        null,
+                        null
+                );
+            }
+
+            // Check for duplicate email if provided
+            if (branchInfoDTO.getEmail() != null &&
+                    branchInfoRepository.existsByEmail(branchInfoDTO.getEmail())) {
+                return new ResponseDTO(
+                        "error",
+                        "400",
+                        "Branch with email '" + branchInfoDTO.getEmail() + "' already exists",
+                        null,
+                        null
+                );
+            }
+
             BranchInfo branchInfo = ConvertUtilityBranchInfo.convertToBranchInfoEntity(branchInfoDTO, parent);
             branchInfo.setInsertDate(ZonedDateTime.now());
             branchInfo.setStatus(true);

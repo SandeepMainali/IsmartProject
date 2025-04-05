@@ -11,6 +11,10 @@ public interface BranchInfoRepo extends JpaRepository<BranchInfo,Integer> {
     Optional<BranchInfo> findBybrAlias(String alias);
 
 
-
-
+    boolean existsByFullName(String fullName);
+    boolean existsByFullNameLocale(String fullNameLocale);
+    boolean existsByShortName(String shortName);
+    boolean existsByRegNo(String regNo);
+    boolean existsByPan(String pan);
+    boolean existsByEmail(String email);
 }
