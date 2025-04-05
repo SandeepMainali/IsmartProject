@@ -1,52 +1,27 @@
-package Meeting_Management.System.Entity;
+package Meeting_Management.System.Dto;
 
-import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.ZonedDateTime;
 
 @Data
-@Entity
-@Table(name ="offices", schema ="minut")
-public class Office {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+@AllArgsConstructor
+@NoArgsConstructor
+public class OfficeDTO {
     private Long id;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "br_id", nullable = false)
-    private BranchInfo branchInfo;
-
-    @Column(name = "office_name", nullable = false)
+    private Integer branchInfoId;
     private String officeName;
-
-    @Column(name = "office_locale", nullable = false)
     private String officeLocale;
-
-    @Column(name = "description")
     private String description;
-
-    @Column(name = "status", nullable = false)
     private Boolean status = true;
-
-    @Column(name = "remarks")
     private String remarks;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "insert_user", nullable = false)
-    private User insertUser;
-
-    @Column(name = "insert_date", nullable = false, updatable = false)
+    private Integer insertUserId;
     private ZonedDateTime insertDate;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "edit_user")
-    private User editUser;
-
-    @Column(name = "edit_date")
+    private Integer editUserId;
     private ZonedDateTime editDate;
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -55,12 +30,12 @@ public class Office {
         this.id = id;
     }
 
-    public BranchInfo getBranchInfo() {
-        return branchInfo;
+    public Integer getBranchInfoId() {
+        return branchInfoId;
     }
 
-    public void setBranchInfo(BranchInfo branchInfo) {
-        this.branchInfo = branchInfo;
+    public void setBranchInfoId(Integer branchInfoId) {
+        this.branchInfoId = branchInfoId;
     }
 
     public String getOfficeName() {
@@ -103,12 +78,12 @@ public class Office {
         this.remarks = remarks;
     }
 
-    public User getInsertUser() {
-        return insertUser;
+    public Integer getInsertUserId() {
+        return insertUserId;
     }
 
-    public void setInsertUser(User insertUser) {
-        this.insertUser = insertUser;
+    public void setInsertUserId(Integer insertUserId) {
+        this.insertUserId = insertUserId;
     }
 
     public ZonedDateTime getInsertDate() {
@@ -119,12 +94,12 @@ public class Office {
         this.insertDate = insertDate;
     }
 
-    public User getEditUser() {
-        return editUser;
+    public Integer getEditUserId() {
+        return editUserId;
     }
 
-    public void setEditUser(User editUser) {
-        this.editUser = editUser;
+    public void setEditUserId(Integer editUserId) {
+        this.editUserId = editUserId;
     }
 
     public ZonedDateTime getEditDate() {

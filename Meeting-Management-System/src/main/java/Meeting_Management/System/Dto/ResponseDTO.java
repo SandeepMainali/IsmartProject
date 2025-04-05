@@ -1,4 +1,4 @@
-package Dto;
+package Meeting_Management.System.Dto;
 
 import java.util.Map;
 
