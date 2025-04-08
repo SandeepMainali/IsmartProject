@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @SpringBootApplication
 @EntityScan(basePackages = "Entity")  // Changed from Meeting_Management.System.entity
 @EnableJpaRepositories(basePackages = "Repository")  // Changed from Meeting_Management.System.repository
-@ComponentScan(basePackages = {"Controller", "Service", "Entity", "Repository"})  // Include all your packages
+@ComponentScan(basePackages = {"Controller", "Service", "Entity", "Repository", "dto","exception"})  // Include all your packages
 public class MeetingManagementSystemApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(MeetingManagementSystemApplication.class, args);
