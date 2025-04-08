@@ -10,7 +10,7 @@ import java.time.ZonedDateTime;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;  // Changed from Integer to Long
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "br_id", nullable = false)
@@ -64,13 +64,13 @@ public class User {
     private String remarks;
 
     @Column(name = "insert_user")
-    private Integer insertUser;
+    private Long insertUser;  // Changed from Integer to Long
 
     @Column(name = "insert_date", nullable = false, updatable = false)
     private ZonedDateTime insertDate;
 
     @Column(name = "edit_user")
-    private Integer editUser;
+    private Long editUser;  // Changed from Integer to Long
 
     @Column(name = "edit_date")
     private ZonedDateTime editDate;

@@ -41,9 +41,9 @@ public class MeetAttendanceService {
         dto.setIsAttendant(entity.getIsAttendant());
         dto.setStatus(entity.getStatus());
         dto.setRemarks(entity.getRemarks());
-        dto.setInsertUserId(entity.getInsertUser().getId());
+        dto.setInsertUserId(entity.getInsertUser() != null ? entity.getInsertUser().getId() : null);  // Updated for Long
         dto.setInsertDate(entity.getInsertDate());
-        dto.setEditUserId(entity.getEditUser() != null ? entity.getEditUser().getId() : null);
+        dto.setEditUserId(entity.getEditUser() != null ? entity.getEditUser().getId() : null);  // Updated for Long
         dto.setEditDate(entity.getEditDate());
         return dto;
     }

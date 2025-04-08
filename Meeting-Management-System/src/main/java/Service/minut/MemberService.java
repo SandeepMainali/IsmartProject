@@ -11,9 +11,10 @@ import Repository.UserRepo;
 import Repository.GenderRepo;
 import Repository.MemTypeRepo;
 import Repository.EthnicCategoryRepo;
-import jakarta.persistence.EntityNotFoundException;
+import exception.ResourceNotFoundException;  // Import the custom exception
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,17 +28,18 @@ public class MemberService {
     private final MemTypeRepo memTypeRepo;
     private final EthnicCategoryRepo ethnicCategoryRepo;
 
-    // Convert Entity to DTO
     private MemberDTO convertToDTO(Member member) {
         MemberDTO dto = new MemberDTO();
         dto.setId(member.getId());
         dto.setFullName(member.getFullName());
         dto.setFullNameLocale(member.getFullNameLocale());
-        dto.setGenderId(member.getGender().getId());
+
+        dto.setGenderId(member.getGender().getId().longValue());
         dto.setMemTypeId(member.getMemType().getId());
         dto.setMintDepartId(member.getMintDepartId());
         dto.setMintMemDegId(member.getMintMemDegId());
-        dto.setEthnicityId(member.getEthinicity() != null ? member.getEthinicity().getId() : null);
+        dto.setEthnicityId(member.getEthinicity() != null ? member.getEthinicity().getId().longValue() : null);
+
         dto.setIsBackwardClass(member.getIsBackwardClass());
         dto.setEmail(member.getEmail());
         dto.setMobNo(member.getMobNo());
@@ -52,14 +54,11 @@ public class MemberService {
         return dto;
     }
 
-    // Convert DTO to Entity
     private Member convertToEntity(MemberDTO dto) {
         Member member = new Member();
         member.setId(dto.getId());
         member.setFullName(dto.getFullName());
         member.setFullNameLocale(dto.getFullNameLocale());
-
-        // Add these missing properties
         member.setMintDepartId(dto.getMintDepartId());
         member.setMintMemDegId(dto.getMintMemDegId());
         member.setIsBackwardClass(dto.getIsBackwardClass());
@@ -68,56 +67,55 @@ public class MemberService {
         member.setOfficeName(dto.getOfficeName());
         member.setDescription(dto.getDescription());
 
-        // Get references to related entities
-        Gender gender = genderRepo.findById(dto.getGenderId())
-                .orElseThrow(() -> new EntityNotFoundException("Gender not found"));
+        Gender gender = genderRepo.findById(dto.getGenderId().longValue())
+                .orElseThrow(() -> new ResourceNotFoundException("Gender not found for ID: " + dto.getGenderId()));
         member.setGender(gender);
 
         MemType memType = memTypeRepo.findById(dto.getMemTypeId())
-                .orElseThrow(() -> new EntityNotFoundException("MemType not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("MemType not found for ID: " + dto.getMemTypeId()));
         member.setMemType(memType);
 
         if (dto.getEthnicityId() != null) {
-            EthnicCategory ethnicity = ethnicCategoryRepo.findById(dto.getEthnicityId())
-                    .orElseThrow(() -> new EntityNotFoundException("Ethnicity not found"));
+            EthnicCategory ethnicity = ethnicCategoryRepo.findById(dto.getEthnicityId().longValue())
+                    .orElseThrow(() -> new ResourceNotFoundException("Ethnicity not found for ID: " + dto.getEthnicityId()));
             member.setEthinicity(ethnicity);
         }
 
         User insertUser = userRepo.findById(dto.getInsertUserId())
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found for ID: " + dto.getInsertUserId()));
         member.setInsertUser(insertUser);
+
         if (dto.getEditUserId() != null) {
-            User editUser = userRepo.findById(dto.getEditUserId())
-                    .orElse(null);
+            User editUser = userRepo.findById(dto.getEditUserId()).orElse(null);
             member.setEditUser(editUser);
         }
+
         member.setInsertDate(dto.getInsertDate());
         member.setEditDate(dto.getEditDate());
         member.setStatus(dto.getStatus());
         member.setRemarks(dto.getRemarks());
+
         return member;
     }
 
-    // Create Member
     public MemberDTO createMember(MemberDTO dto) {
         Member member = convertToEntity(dto);
         return convertToDTO(memberRepo.save(member));
     }
 
-    // Get All Members
     public List<MemberDTO> getAllMembers() {
         return memberRepo.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
-    // Get Member by ID
     public MemberDTO getMemberById(Long id) {
-        Member member = memberRepo.findById(id).orElseThrow(() -> new EntityNotFoundException("Member not found"));
+        Member member = memberRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Member not found for ID: " + id));
         return convertToDTO(member);
     }
 
-    // Update Member
     public MemberDTO updateMember(Long id, MemberDTO dto) {
-        Member member = memberRepo.findById(id).orElseThrow(() -> new EntityNotFoundException("Member not found"));
+        Member member = memberRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Member not found for ID: " + id));
 
         member.setFullName(dto.getFullName());
         member.setFullNameLocale(dto.getFullNameLocale());
@@ -125,18 +123,18 @@ public class MemberService {
         member.setRemarks(dto.getRemarks());
 
         if (dto.getEditUserId() != null) {
-            User editUser = userRepo.findById(dto.getEditUserId()).orElseThrow(() -> new EntityNotFoundException("User not found"));
+            User editUser = userRepo.findById(dto.getEditUserId())
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found for ID: " + dto.getEditUserId()));
             member.setEditUser(editUser);
         }
-        member.setEditDate(dto.getEditDate());
 
+        member.setEditDate(dto.getEditDate());
         return convertToDTO(memberRepo.save(member));
     }
 
-    // Delete Member
     public void deleteMember(Long id) {
         if (!memberRepo.existsById(id)) {
-            throw new EntityNotFoundException("Member not found");
+            throw new ResourceNotFoundException("Member not found for ID: " + id);
         }
         memberRepo.deleteById(id);
     }

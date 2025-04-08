@@ -10,7 +10,7 @@ import java.time.ZonedDateTime;
 public class EthnicCategory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Short id;
+    private Long id;  // Changed from Short to Long
 
     @Column(name = "ethnic_name", length = 50, nullable = false, unique = true)
     private String ethnicName;

@@ -74,6 +74,45 @@ public class MeetMinutService {
         return convertToDTO(entity);
     }
 
+    // Update method
+    public MeetMinutDTO updateMeetMinut(Long id, MeetMinutDTO dto) {
+        MeetMinut existingEntity = meetMinutRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("MeetMinut not found"));
+
+        MinutType minutType = minutTypeRepo.findById(Long.valueOf(dto.getMintType()))
+                .orElseThrow(() -> new RuntimeException("MinutType not found"));
+
+        Member chairPerson = memberRepo.findById(Long.valueOf(dto.getChairPerson()))
+                .orElseThrow(() -> new RuntimeException("Chair person not found"));
+
+        existingEntity.setMintType(minutType);
+        existingEntity.setFinYear(dto.getFinYear());
+        existingEntity.setMeetCount(dto.getMeetCount());
+        existingEntity.setMeetDate(dto.getMeetDate());
+        existingEntity.setTimeFrom(dto.getTimeFrom());
+        existingEntity.setTimeTo(dto.getTimeTo());
+        existingEntity.setMeetPlace(dto.getMeetPlace());
+        existingEntity.setChairPerson(chairPerson);
+        existingEntity.setPropositions(dto.getPropositions());
+        existingEntity.setDecisions(dto.getDecisions());
+        existingEntity.setStatus(dto.getStatus() != null ? dto.getStatus() : true);
+        existingEntity.setRemarks(dto.getRemarks());
+
+        // If you want to update the edit user and date as well
+        User currentUser = userRepo.findById(1L) // Replace with actual user ID
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        existingEntity.setEditUser(currentUser);
+        existingEntity.setEditDate(ZonedDateTime.now());
+
+        existingEntity = meetMinutRepo.save(existingEntity);
+        return convertToDTO(existingEntity);
+    }
+
+    // Delete method
+    public void deleteMeetMinut(Long id) {
+        meetMinutRepo.deleteById(id);
+    }
+
     // Convert Entity to DTO
     private MeetMinutDTO convertToDTO(MeetMinut meetMinut) {
         MeetMinutDTO meetMinutDTO = new MeetMinutDTO();
