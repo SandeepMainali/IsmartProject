@@ -19,7 +19,7 @@ public class UserDTO {
     private String fullNameLocale;
     private String address;
     private Integer genderId;
-    private String pContact;
+    private String primaryContact;
     private String otherContact;
     private String email;
     private Boolean status;

@@ -25,7 +25,7 @@ public class ConvertUtility {
         userDTO.setFullNameLocale(user.getFullNameLocale());
         userDTO.setAddress(user.getAddress());
         userDTO.setGenderId(user.getGender().getId());
-        userDTO.setPContact(user.getPContact());
+        userDTO.setPrimaryContact(user.getPContact());
         userDTO.setOtherContact(user.getOtherContact());
         userDTO.setEmail(user.getEmail());
         userDTO.setStatus(user.getStatus());
