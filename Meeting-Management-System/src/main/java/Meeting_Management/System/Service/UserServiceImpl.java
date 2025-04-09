@@ -118,7 +118,7 @@ public class UserServiceImpl implements UserService {
         user.setFullName(userDTO.getFullName());
         user.setFullNameLocale(userDTO.getFullNameLocale());
         user.setAddress(userDTO.getAddress());
-        user.setPContact(userDTO.getPContact());
+        user.setPContact(userDTO.getPrimaryContact());
         user.setOtherContact(userDTO.getOtherContact());
         user.setEmail(userDTO.getEmail());
         user.setStatus(true);
@@ -202,8 +202,8 @@ public class UserServiceImpl implements UserService {
                 existingUser.setAddress(userDTO.getAddress());
             }
 
-            if (userDTO.getPContact() != null) {
-                existingUser.setPContact(userDTO.getPContact());
+            if (userDTO.getPrimaryContact() != null) {
+                existingUser.setPContact(userDTO.getPrimaryContact());
             }
 
             if (userDTO.getOtherContact() != null) {
