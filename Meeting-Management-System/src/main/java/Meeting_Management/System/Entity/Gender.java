@@ -10,6 +10,7 @@ import java.time.ZonedDateTime;
 public class Gender {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private Integer id;
 
     @Column(name = "gender_alias", length = 10, nullable = false, unique = true)
