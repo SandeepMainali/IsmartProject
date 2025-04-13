@@ -177,7 +177,7 @@ public class ConvertUtilityBranchInfo {
         // Find parent branches (those with parentId = null)
         List<BranchInfoDTO> parentBranches = branchInfoDTOs.stream()
                 .filter(branch -> branch.getParentId() == null)
-                .collect(Collectors.toList());
+                .toList();
 
         // For each parent branch
         for (BranchInfoDTO parentDTO : parentBranches) {
