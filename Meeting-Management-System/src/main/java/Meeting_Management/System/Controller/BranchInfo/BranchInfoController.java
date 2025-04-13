@@ -2,39 +2,42 @@ package Meeting_Management.System.Controller.BranchInfo;
 
 import Meeting_Management.System.Dto.BranchInfoDTO;
 import Meeting_Management.System.Dto.ResponseDTO;
-import Meeting_Management.System.Service.Impl.IBranchInfoService;
-import org.springframework.beans.factory.annotation.Autowired;
+import Meeting_Management.System.Service.Impl.BranchInfoRouter;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/branch")
 public class BranchInfoController {
-    @Autowired
-    IBranchInfoService branchInfoService;
 
+    private final BranchInfoRouter branchInfoService;
 
-    @GetMapping("/view")
-    public ResponseDTO getAllBranchInfos() {
-        return branchInfoService.getAllBranchInfos();
+    public BranchInfoController(BranchInfoRouter branchInfoService) {
+        this.branchInfoService = branchInfoService;
     }
 
-    @PostMapping("/add")
-    public ResponseDTO createBranchInfo(@RequestBody BranchInfoDTO branchInfoDTO) {
-        return branchInfoService.createBranchInfo(branchInfoDTO);
+
+    @GetMapping("/{type}/view")
+    public ResponseDTO getAllBranchInfos(@PathVariable("type") String type) {
+        return branchInfoService.getBranchInfoService(type).getAllBranchInfos();
     }
 
-    @PutMapping("/{id}")
-    public ResponseDTO updateBranchInfo(@PathVariable Integer id, @RequestBody BranchInfoDTO branchInfoDTO) {
-        return branchInfoService.updateBranchInfo(id, branchInfoDTO);
+    @PostMapping("/{type}/add")
+    public ResponseDTO createBranchInfo(@PathVariable("type") String type,@RequestBody BranchInfoDTO branchInfoDTO) {
+        return branchInfoService.getBranchInfoService(type).createBranchInfo(branchInfoDTO);
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseDTO deleteBranchInfo(@PathVariable Integer id) {
-        return branchInfoService.deleteBranchInfo(id);
+    @PutMapping("/{type}/{id}")
+    public ResponseDTO updateBranchInfo(@PathVariable("type") String type,@PathVariable Integer id, @RequestBody BranchInfoDTO branchInfoDTO) {
+        return branchInfoService.getBranchInfoService(type).updateBranchInfo(id, branchInfoDTO);
     }
 
-    @GetMapping("/{id}")
-    public ResponseDTO getBranchInfoById(@PathVariable Integer id) {
-        return branchInfoService.getBranchInfoById(id);
+    @DeleteMapping("/{type}/delete/{id}")
+    public ResponseDTO deleteBranchInfo(@PathVariable("type") String type,@PathVariable Integer id) {
+        return branchInfoService.getBranchInfoService(type).deleteBranchInfo(id);
+    }
+
+    @GetMapping("/{type}/{id}")
+    public ResponseDTO getBranchInfoById(@PathVariable("type") String type,@PathVariable Integer id) {
+        return branchInfoService.getBranchInfoService(type).getBranchInfoById(id);
     }
 }

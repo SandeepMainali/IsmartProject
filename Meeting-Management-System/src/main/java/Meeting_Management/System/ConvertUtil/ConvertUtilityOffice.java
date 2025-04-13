@@ -31,9 +31,9 @@ public class ConvertUtilityOffice {
         officeDTO.setDescription(office.getDescription());
         officeDTO.setStatus(office.getStatus());
         officeDTO.setRemarks(office.getRemarks());
-        officeDTO.setInsertUserId(office.getInsertUser() != null ? office.getInsertUser().getId() : null);
+        officeDTO.setInsertUser(office.getInsertUser() != null ? office.getInsertUser().getUserName() : null);
         officeDTO.setInsertDate(office.getInsertDate());
-        officeDTO.setEditUserId(office.getEditUser() != null ? office.getEditUser().getId() : null);
+        officeDTO.setEditUser(office.getEditUser() != null ? office.getEditUser().getUserName() : null);
         officeDTO.setEditDate(office.getEditDate());
 
         return officeDTO;

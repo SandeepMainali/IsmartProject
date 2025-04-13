@@ -7,10 +7,7 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,8 +27,9 @@ public class JWTService {
 //        }
 //    }
 
-    public String generateToken(String userName) {
+    public String generateToken(String userName,Integer userId) {
         Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", userId);
 
         return Jwts.builder()
                 .claims()
@@ -51,6 +49,10 @@ public class JWTService {
 
     public String extractUserName(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    public Integer extractUserId(String token) {
+        return extractClaim(token, claims -> claims.get("userId", Integer.class));
     }
 
     private <T> T extractClaim(String token, Function<Claims, T> claimResolver) {

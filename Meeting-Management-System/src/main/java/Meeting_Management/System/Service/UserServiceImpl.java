@@ -9,20 +9,15 @@ import Meeting_Management.System.Entity.BranchInfo;
 import Meeting_Management.System.Entity.Gender;
 import Meeting_Management.System.Entity.Role;
 import Meeting_Management.System.Entity.User;
+import Meeting_Management.System.Filter.JWTFilter;
 import Meeting_Management.System.Repository.BranchInfoRepo;
 import Meeting_Management.System.Repository.GenderRepo;
 import Meeting_Management.System.Repository.RolesRepo;
 import Meeting_Management.System.Repository.UserRepo;
 import Meeting_Management.System.Service.Impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.time.ZonedDateTime;
 import java.util.*;
 
@@ -136,7 +131,7 @@ public class UserServiceImpl implements UserService {
             }
         }
 
-        user.setInsertUser(userDTO.getInsertUser());
+        user.setInsertUser(JWTFilter.getCurrentUserId());
         user.setInsertDate(ZonedDateTime.now());
 
             User savedUser = userRepo.save(user);
@@ -267,6 +262,26 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public ResponseDTO changePasswordByAdmin(Integer id, String newPassword) {
+        Optional<User> userOptional = userRepo.findById(id);
+
+        if (userOptional.isEmpty()) {
+            return new ResponseDTO("Error", "M0000", "No user found", null, null);
+        }
+        User user = userOptional.get();
+
+        String salt = generateSalt();
+        String hashedPassword = hashPassword(newPassword, salt);
+
+        user.setPasswordSalt(salt);
+        user.setPasswordHash(hashedPassword);
+        user.setEditDate(ZonedDateTime.now());
+
+        User updatedUser = userRepo.save(user);
+        return new ResponseDTO("Success", "M0000", "Password Changed Successfully", null, null);
+    }
+
+    @Override
     public ResponseDTO setUserStatus(Integer id, boolean status) {
         Optional<User> userOptional = userRepo.findById(id);
 
@@ -313,7 +328,7 @@ public class UserServiceImpl implements UserService {
             return new ResponseDTO("E0000", "E0000", "Password Incorrect", null, null);
         }
 
-        String token = jwtService.generateToken(user.getUserName());
+        String token = jwtService.generateToken(user.getUserName(), user.getId());
 
         Map<String, Object> detail = new HashMap<>();
         detail.put("token", token);

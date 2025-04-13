@@ -7,6 +7,7 @@ import Meeting_Management.System.Dto.ResponseDTO;
 import Meeting_Management.System.Entity.BranchInfo;
 import Meeting_Management.System.Entity.Office;
 import Meeting_Management.System.Entity.User;
+import Meeting_Management.System.Filter.JWTFilter;
 import Meeting_Management.System.Repository.BranchInfoRepo;
 import Meeting_Management.System.Repository.OfficeRepo;
 import Meeting_Management.System.Repository.UserRepo;
@@ -32,6 +33,7 @@ public class OfficeService implements IOfficeService {
 
     @Autowired
     private UserRepo userRepository;
+
 
     @Override
     public ResponseDTO getAllOffices() {
@@ -186,13 +188,14 @@ public class OfficeService implements IOfficeService {
                 );
             }
 
+
             // Validate insert user
-            Optional<User> insertUserOptional = userRepository.findById(officeDTO.getInsertUserId());
+            Optional<User> insertUserOptional = userRepository.findById(JWTFilter.getCurrentUserId());
             if (insertUserOptional.isEmpty()) {
                 return new ResponseDTO(
                         "error",
                         "404",
-                        "Insert user not found with ID: " + officeDTO.getInsertUserId(),
+                        "Insert user not found with username: " + officeDTO.getInsertUser(),
                         null,
                         null
                 );
@@ -273,19 +276,17 @@ public class OfficeService implements IOfficeService {
             }
 
             // Validate edit user if provided
-            if (officeDTO.getEditUserId() != null) {
-                Optional<User> editUserOptional = userRepository.findById(officeDTO.getEditUserId());
-                if (editUserOptional.isEmpty()) {
-                    return new ResponseDTO(
-                            "error",
-                            "404",
-                            "Edit user not found with ID: " + officeDTO.getEditUserId(),
-                            null,
-                            null
-                    );
-                }
-                existingOffice.setEditUser(editUserOptional.get());
+            Optional<User> editUserOptional = userRepository.findById(JWTFilter.getCurrentUserId());
+            if (editUserOptional.isEmpty()) {
+                return new ResponseDTO(
+                        "error",
+                        "404",
+                        "Edit user not found with Username: " + officeDTO.getEditUser(),
+                        null,
+                        null
+                );
             }
+            existingOffice.setEditUser(editUserOptional.get());
 
             // Update fields
             existingOffice.setOfficeName(officeDTO.getOfficeName());

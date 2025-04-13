@@ -3,7 +3,6 @@ package Meeting_Management.System.Service.Impl;
 import Meeting_Management.System.Dto.ResponseDTO;
 import Meeting_Management.System.Dto.UserDTO;
 
-import java.util.List;
 
 public interface UserService {
 
@@ -18,6 +17,8 @@ public interface UserService {
     ResponseDTO deleteUser(Integer id);
 
     ResponseDTO changePassword(Integer id, String oldPassword, String newPassword);
+
+    ResponseDTO changePasswordByAdmin(Integer id, String newPassword);
 
     ResponseDTO setUserStatus(Integer id, boolean status);
 }

@@ -17,9 +17,9 @@ public class OfficeDTO {
     private String description;
     private Boolean status = true;
     private String remarks;
-    private Integer insertUserId;
+    private String insertUser;
     private ZonedDateTime insertDate;
-    private Integer editUserId;
+    private String editUser;
     private ZonedDateTime editDate;
 
     public Long getId() {
@@ -78,12 +78,12 @@ public class OfficeDTO {
         this.remarks = remarks;
     }
 
-    public Integer getInsertUserId() {
-        return insertUserId;
+    public String getInsertUser() {
+        return insertUser;
     }
 
-    public void setInsertUserId(Integer insertUserId) {
-        this.insertUserId = insertUserId;
+    public void setInsertUser(String insertUserId) {
+        this.insertUser = insertUserId;
     }
 
     public ZonedDateTime getInsertDate() {
@@ -94,12 +94,12 @@ public class OfficeDTO {
         this.insertDate = insertDate;
     }
 
-    public Integer getEditUserId() {
-        return editUserId;
+    public String getEditUser() {
+        return editUser;
     }
 
-    public void setEditUserId(Integer editUserId) {
-        this.editUserId = editUserId;
+    public void setEditUser(String editUserId) {
+        this.editUser = editUserId;
     }
 
     public ZonedDateTime getEditDate() {

@@ -2,8 +2,7 @@ package Meeting_Management.System.Service.BranchInfo;
 
 import Meeting_Management.System.ConvertUtil.ConvertUtilityBranchInfo;
 import Meeting_Management.System.Dto.BranchInfoDTO;
-
-import Meeting_Management.System.Dto.HierarchyBranch.BranchHierarchyDTO;
+import Meeting_Management.System.Dto.BranchInfoOutDTO;
 import Meeting_Management.System.Dto.ResponseDTO;
 import Meeting_Management.System.Entity.BranchInfo;
 import Meeting_Management.System.Filter.JWTFilter;
@@ -19,41 +18,37 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.ZonedDateTime;
 import java.util.*;
 
-@Service("all")
-public class BranchInfoService implements IBranchInfoService {
+@Service("child")
+public class BranchInfoChildService implements IBranchInfoService {
 
     @Autowired
-    BranchInfoRepo branchInfoRepository;
-
-
+    private BranchInfoRepo branchInfoRepository;
 
     @Override
     public ResponseDTO getAllBranchInfos() {
         try {
-            List<BranchInfo> branchInfos = branchInfoRepository.findAll();
+            List<BranchInfo> childBranches = branchInfoRepository.findByParentIdIsNotNullOrderByParentIdId();
 
-            if (branchInfos.isEmpty()) {
-                System.out.println("No data found");
+            if (childBranches.isEmpty()) {
+                System.out.println("No child branches found");
                 return new ResponseDTO(
                         "success",
                         "204",
-                        "No branch information found",
+                        "No child branches found",
                         Collections.emptyMap(),
                         null
                 );
             }
 
-            List<BranchInfoDTO> branchInfoDTOs = ConvertUtilityBranchInfo.ConvertListBranchInfoDTO(branchInfos);
+            List<BranchInfoOutDTO> branchInfoDTOs = ConvertUtilityBranchInfo.ConvertListBranchInfoResponseDTO(childBranches);
 
-            List<BranchHierarchyDTO> hierarchicalBranches = ConvertUtilityBranchInfo.createHierarchicalStructure(branchInfoDTOs);
-            
             Map<String, Object> details = new HashMap<>();
-            details.put("branchInfos", hierarchicalBranches);
+            details.put("childBranches", branchInfoDTOs);
 
             return new ResponseDTO(
                     "success",
                     "200",
-                    "Branch information retrieved successfully",
+                    "Child branches retrieved successfully",
                     details,
                     null
             );
@@ -81,24 +76,23 @@ public class BranchInfoService implements IBranchInfoService {
         try {
             Optional<BranchInfo> optionalBranchInfo = branchInfoRepository.findById(id);
 
-            if (optionalBranchInfo.isPresent()) {
-                BranchInfoDTO branchInfoDTO = ConvertUtilityBranchInfo.convertToBranchInfoDTO(optionalBranchInfo.get());
+            if (optionalBranchInfo.isPresent() && optionalBranchInfo.get().getParentId() != null) {
+                BranchInfoOutDTO branchInfoDTO = ConvertUtilityBranchInfo.convertToBranchInfoOutDTO(optionalBranchInfo.get());
                 Map<String, Object> detail = new HashMap<>();
-                detail.put("branchInfo", branchInfoDTO);
+                detail.put("childBranch", branchInfoDTO);
 
                 return new ResponseDTO(
                         "success",
                         "200",
-                        "Branch information retrieved successfully",
+                        "Child branch information retrieved successfully",
                         null,
                         detail
                 );
             } else {
-                System.out.println("No branch found with ID: " + id);
                 return new ResponseDTO(
                         "error",
                         "404",
-                        "No branch found with ID: " + id,
+                        "No child branch found with ID: " + id,
                         null,
                         null
                 );
@@ -127,24 +121,23 @@ public class BranchInfoService implements IBranchInfoService {
         try {
             Optional<BranchInfo> optionalBranchInfo = branchInfoRepository.findBybrAlias(alias);
 
-            if (optionalBranchInfo.isPresent()) {
-                BranchInfoDTO branchInfoDTO = ConvertUtilityBranchInfo.convertToBranchInfoDTO(optionalBranchInfo.get());
+            if (optionalBranchInfo.isPresent() && optionalBranchInfo.get().getParentId() != null) {
+                BranchInfoOutDTO branchInfoDTO = ConvertUtilityBranchInfo.convertToBranchInfoOutDTO(optionalBranchInfo.get());
                 Map<String, Object> detail = new HashMap<>();
-                detail.put("branchInfo", branchInfoDTO);
+                detail.put("childBranch", branchInfoDTO);
 
                 return new ResponseDTO(
                         "success",
                         "200",
-                        "Branch information retrieved successfully",
+                        "Child branch information retrieved successfully",
                         null,
                         detail
                 );
             } else {
-                System.out.println("No branch found with this Alias: " + alias);
                 return new ResponseDTO(
                         "error",
                         "404",
-                        "No branch found with Alias: " + alias,
+                        "No child branch found with Alias: " + alias,
                         null,
                         null
                 );
@@ -172,22 +165,29 @@ public class BranchInfoService implements IBranchInfoService {
     @Override
     public ResponseDTO createBranchInfo(BranchInfoDTO branchInfoDTO) {
         try {
-            BranchInfo parent = null;
-            if(branchInfoDTO.getParentId() != null){
-                Optional<BranchInfo> parentBranchInfo = branchInfoRepository.findById(branchInfoDTO.getParentId());
-                if (parentBranchInfo.isPresent()) {
-                    parent = parentBranchInfo.get();
-                } else {
-                    System.out.println("No such parent branch found");
-                    return new ResponseDTO(
-                            "error",
-                            "404",
-                            "Parent branch not found with ID: " + branchInfoDTO.getParentId(),
-                            null,
-                            null
-                    );
-                }
+            // Ensure this has a valid parent
+            if (branchInfoDTO.getParentId() == null) {
+                return new ResponseDTO(
+                        "error",
+                        "400",
+                        "Child branch must have a parent branch ID",
+                        null,
+                        null
+                );
             }
+
+            Optional<BranchInfo> parentBranchInfo = branchInfoRepository.findById(branchInfoDTO.getParentId());
+            if (parentBranchInfo.isEmpty()) {
+                return new ResponseDTO(
+                        "error",
+                        "404",
+                        "Parent branch not found with ID: " + branchInfoDTO.getParentId(),
+                        null,
+                        null
+                );
+            }
+
+            BranchInfo parent = parentBranchInfo.get();
 
             // Check for duplicate brAlias
             if (branchInfoDTO.getBrAlias() != null &&
@@ -280,15 +280,15 @@ public class BranchInfoService implements IBranchInfoService {
             branchInfo.setEditUser(null);
             branchInfo.setEditDate(null);
             BranchInfo savedBranchInfo = branchInfoRepository.save(branchInfo);
-            BranchInfoDTO savedBranchInfoDTO = ConvertUtilityBranchInfo.convertToBranchInfoDTO(savedBranchInfo);
+            BranchInfoOutDTO savedBranchInfoDTO = ConvertUtilityBranchInfo.convertToBranchInfoOutDTO(savedBranchInfo);
 
             Map<String, Object> detail = new HashMap<>();
-            detail.put("branchInfo", savedBranchInfoDTO);
+            detail.put("childBranch", savedBranchInfoDTO);
 
             return new ResponseDTO(
                     "success",
                     "201",
-                    "Branch created successfully",
+                    "Child branch created successfully",
                     null,
                     detail
             );
@@ -300,12 +300,11 @@ public class BranchInfoService implements IBranchInfoService {
                     null,
                     null
             );
-        }
-        catch (DataAccessException e) {
+        } catch (DataAccessException e) {
             return new ResponseDTO(
                     "error",
                     "500",
-                    "Database error during branch creation: " + e.getMessage(),
+                    "Database error during child branch creation: " + e.getMessage(),
                     null,
                     null
             );
@@ -313,15 +312,15 @@ public class BranchInfoService implements IBranchInfoService {
             return new ResponseDTO(
                     "error",
                     "500",
-                    "An unexpected error occurred during branch creation: " + e.getMessage(),
+                    "An unexpected error occurred during child branch creation: " + e.getMessage(),
                     null,
                     null
             );
         }
     }
 
-    @Override
     @Transactional
+    @Override
     public ResponseDTO updateBranchInfo(Integer id, BranchInfoDTO branchInfoDTO) {
         try {
             Optional<BranchInfo> branchInfoOptional = branchInfoRepository.findById(id);
@@ -330,7 +329,7 @@ public class BranchInfoService implements IBranchInfoService {
                 return new ResponseDTO(
                         "error",
                         "404",
-                        "Branch info not found with id: " + id,
+                        "Child branch not found with id: " + id,
                         null,
                         null
                 );
@@ -338,40 +337,26 @@ public class BranchInfoService implements IBranchInfoService {
 
             BranchInfo existingBranchInfo = branchInfoOptional.get();
 
-            BranchInfo parent = null;
-            if(branchInfoDTO.getParentId() != null){
-                Optional<BranchInfo> parentBranchInfo = branchInfoRepository.findById(branchInfoDTO.getParentId());
-                if (parentBranchInfo.isPresent()) {
-                    parent = parentBranchInfo.get();
-                } else {
-                    System.out.println("No such parent branch found");
-                    return new ResponseDTO(
-                            "error",
-                            "404",
-                            "Parent branch not found with ID: " + branchInfoDTO.getParentId(),
-                            null,
-                            null
-                    );
-                }
-            }
+            branchInfoDTO.setParentId(existingBranchInfo.getParentId().getId());
 
             // Update the existing entity with values from DTO
-            BranchInfo updatedBranchInfo = ConvertUtilityBranchInfo.updateBranchInfoFields(existingBranchInfo, branchInfoDTO, parent);
+            BranchInfo updatedBranchInfo = ConvertUtilityBranchInfo.updateBranchInfoFields(existingBranchInfo, branchInfoDTO, null);
 
             // Set update timestamp
             updatedBranchInfo.setEditDate(ZonedDateTime.now());
             updatedBranchInfo.setEditUser(JWTFilter.getCurrentUserId());
+
             // Save the updated entity
             BranchInfo savedBranchInfo = branchInfoRepository.save(updatedBranchInfo);
-            BranchInfoDTO updatedBranchInfoDTO = ConvertUtilityBranchInfo.convertToBranchInfoDTO(savedBranchInfo);
+            BranchInfoOutDTO updatedBranchInfoDTO = ConvertUtilityBranchInfo.convertToBranchInfoOutDTO(savedBranchInfo);
 
             Map<String, Object> detail = new HashMap<>();
-            detail.put("branchInfo", updatedBranchInfoDTO);
+            detail.put("parentBranch", updatedBranchInfoDTO);
 
             return new ResponseDTO(
                     "success",
                     "200",
-                    "Branch updated successfully",
+                    "Parent branch updated successfully",
                     null,
                     detail
             );
@@ -387,7 +372,7 @@ public class BranchInfoService implements IBranchInfoService {
             return new ResponseDTO(
                     "error",
                     "500",
-                    "Database error during branch update: " + e.getMessage(),
+                    "Database error during parent branch update: " + e.getMessage(),
                     null,
                     null
             );
@@ -395,7 +380,7 @@ public class BranchInfoService implements IBranchInfoService {
             return new ResponseDTO(
                     "error",
                     "500",
-                    "An unexpected error occurred during branch update: " + e.getMessage(),
+                    "An unexpected error occurred during parent branch update: " + e.getMessage(),
                     null,
                     null
             );
@@ -405,6 +390,7 @@ public class BranchInfoService implements IBranchInfoService {
     @Override
     @Transactional
     public ResponseDTO deleteBranchInfo(Integer id) {
+        String delete = null;
         try {
             Optional<BranchInfo> branchInfoOptional = branchInfoRepository.findById(id);
 
@@ -412,22 +398,24 @@ public class BranchInfoService implements IBranchInfoService {
                 return new ResponseDTO(
                         "error",
                         "404",
-                        "Branch info not found with id: " + id,
+                        "branch not found with id: " + id,
                         null,
                         null
                 );
             }
 
-            BranchInfo branchInfo = branchInfoOptional.get();
-            branchInfoRepository.delete(branchInfo);
+            BranchInfo childBranch = branchInfoOptional.get();
+
+            delete = childBranch.getFullName();
+            branchInfoRepository.delete(childBranch);
 
             Map<String, Object> detail = new HashMap<>();
-            detail.put("deletedId", id);
+            detail.put("deletedBranch", delete);
 
             return new ResponseDTO(
                     "success",
                     "200",
-                    "Branch deleted successfully",
+                    "the branch deleted successfully",
                     null,
                     detail
             );
@@ -435,7 +423,7 @@ public class BranchInfoService implements IBranchInfoService {
             return new ResponseDTO(
                     "error",
                     "400",
-                    "Cannot delete this branch as it is referenced by other entities: " + e.getMessage(),
+                    "Cannot delete this parent branch as it is referenced by other entities: " + e.getMessage(),
                     null,
                     null
             );
@@ -443,7 +431,7 @@ public class BranchInfoService implements IBranchInfoService {
             return new ResponseDTO(
                     "error",
                     "500",
-                    "Database error during branch deletion: " + e.getMessage(),
+                    "Database error during parent branch deletion: " + e.getMessage(),
                     null,
                     null
             );
@@ -451,7 +439,7 @@ public class BranchInfoService implements IBranchInfoService {
             return new ResponseDTO(
                     "error",
                     "500",
-                    "An unexpected error occurred during branch deletion: " + e.getMessage(),
+                    "An unexpected error occurred during parent branch deletion: " + e.getMessage(),
                     null,
                     null
             );
@@ -460,50 +448,77 @@ public class BranchInfoService implements IBranchInfoService {
 
     @Override
     public ResponseDTO getBranchInfosByParentId(Integer parentId) {
-        // Implementation for getting branches by parent ID
-        return new ResponseDTO(
-                "success",
-                "200",
-                "Method not yet implemented",
-                null,
-                null
-        );
+        try {
+            Optional<BranchInfo> parentBranchOptional = branchInfoRepository.findById(parentId);
+
+            if (parentBranchOptional.isEmpty()) {
+                return new ResponseDTO(
+                        "error",
+                        "404",
+                        "Parent branch not found with ID: " + parentId,
+                        null,
+                        null
+                );
+            }
+
+            BranchInfo parentBranch = parentBranchOptional.get();
+            List<BranchInfo> childBranches = branchInfoRepository.findByParentId(parentBranch);
+
+            if (childBranches.isEmpty()) {
+                return new ResponseDTO(
+                        "success",
+                        "204",
+                        "No child branches found for parent ID: " + parentId,
+                        Collections.emptyMap(),
+                        null
+                );
+            }
+
+            List<BranchInfoOutDTO> branchInfoDTOs = ConvertUtilityBranchInfo.ConvertListBranchInfoResponseDTO(childBranches);
+
+            Map<String, Object> details = new HashMap<>();
+            details.put("childBranches", branchInfoDTOs);
+            details.put("parentId", parentId);
+
+            return new ResponseDTO(
+                    "success",
+                    "200",
+                    "Child branches retrieved successfully for parent ID: " + parentId,
+                    details,
+                    null
+            );
+        } catch (DataAccessException e) {
+            return new ResponseDTO(
+                    "error",
+                    "500",
+                    "Database error: " + e.getMessage(),
+                    null,
+                    null
+            );
+        } catch (Exception e) {
+            return new ResponseDTO(
+                    "error",
+                    "500",
+                    "An unexpected error occurred: " + e.getMessage(),
+                    null,
+                    null
+            );
+        }
     }
 
     @Override
     public ResponseDTO getActiveBranchInfos() {
-        // Implementation for getting active branches
-        return new ResponseDTO(
-                "success",
-                "200",
-                "Method not yet implemented",
-                null,
-                null
-        );
+        return null;
     }
 
     @Override
     public ResponseDTO getBranchInfosByCity(String city) {
-        // Implementation for getting branches by city
-        return new ResponseDTO(
-                "success",
-                "200",
-                "Method not yet implemented",
-                null,
-                null
-        );
+        return null;
     }
 
     @Override
     public ResponseDTO getBranchInfosByProvince(String province) {
-        // Implementation for getting branches by province
-        return new ResponseDTO(
-                "success",
-                "200",
-                "Method not yet implemented",
-                null,
-                null
-        );
+        return null;
     }
 
 }
