@@ -11,6 +11,7 @@ import Repository.MeetMinutRepo;
 import Repository.MinutTypeRepo;
 import Repository.MemberRepo;
 import Repository.UserRepo;
+import exception.ResourceNotFoundException;
 
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -39,20 +40,21 @@ public class MeetMinutService {
 
     // Method to get MeetMinut by ID
     public MeetMinutDTO getMeetMinutById(Long id) {
-        MeetMinut meetMinut = meetMinutRepo.findById(id).orElseThrow(() -> new RuntimeException("MeetMinut not found"));
+        MeetMinut meetMinut = meetMinutRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Meeting minute not found for ID: " + id));
         return convertToDTO(meetMinut);
     }
 
     // Create method
     public MeetMinutDTO createMeetMinut(MeetMinutDTO dto) {
         MinutType minutType = minutTypeRepo.findById(Long.valueOf(dto.getMintType()))
-                .orElseThrow(() -> new RuntimeException("MinutType not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Minute type not found for ID: " + dto.getMintType()));
 
         Member chairPerson = memberRepo.findById(Long.valueOf(dto.getChairPerson()))
-                .orElseThrow(() -> new RuntimeException("Chair person not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Chair person not found for ID: " + dto.getChairPerson()));
 
         User currentUser = userRepo.findById(1L) // Replace with actual user ID
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found for ID: 1"));
 
         MeetMinut entity = new MeetMinut();
         entity.setMintType(minutType);
@@ -77,13 +79,13 @@ public class MeetMinutService {
     // Update method
     public MeetMinutDTO updateMeetMinut(Long id, MeetMinutDTO dto) {
         MeetMinut existingEntity = meetMinutRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("MeetMinut not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Meeting minute not found for ID: " + id));
 
         MinutType minutType = minutTypeRepo.findById(Long.valueOf(dto.getMintType()))
-                .orElseThrow(() -> new RuntimeException("MinutType not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Minute type not found for ID: " + dto.getMintType()));
 
         Member chairPerson = memberRepo.findById(Long.valueOf(dto.getChairPerson()))
-                .orElseThrow(() -> new RuntimeException("Chair person not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Chair person not found for ID: " + dto.getChairPerson()));
 
         existingEntity.setMintType(minutType);
         existingEntity.setFinYear(dto.getFinYear());
@@ -100,7 +102,7 @@ public class MeetMinutService {
 
         // If you want to update the edit user and date as well
         User currentUser = userRepo.findById(1L) // Replace with actual user ID
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found for ID: 1"));
         existingEntity.setEditUser(currentUser);
         existingEntity.setEditDate(ZonedDateTime.now());
 
@@ -110,6 +112,9 @@ public class MeetMinutService {
 
     // Delete method
     public void deleteMeetMinut(Long id) {
+        if (!meetMinutRepo.existsById(id)) {
+            throw new ResourceNotFoundException("Meeting minute not found for ID: " + id);
+        }
         meetMinutRepo.deleteById(id);
     }
 
@@ -117,21 +122,21 @@ public class MeetMinutService {
     private MeetMinutDTO convertToDTO(MeetMinut meetMinut) {
         MeetMinutDTO meetMinutDTO = new MeetMinutDTO();
         meetMinutDTO.setId(meetMinut.getId());
-        meetMinutDTO.setMintType(meetMinut.getMintType().getMinuteName()); // Changed getName() to getMinuteName()
+        meetMinutDTO.setMintType(meetMinut.getMintType().getMinuteName());
         meetMinutDTO.setFinYear(meetMinut.getFinYear());
         meetMinutDTO.setMeetCount(meetMinut.getMeetCount());
         meetMinutDTO.setMeetDate(meetMinut.getMeetDate());
         meetMinutDTO.setTimeFrom(meetMinut.getTimeFrom());
         meetMinutDTO.setTimeTo(meetMinut.getTimeTo());
         meetMinutDTO.setMeetPlace(meetMinut.getMeetPlace());
-        meetMinutDTO.setChairPerson(meetMinut.getChairPerson().getFullName()); // Changed getName() to getFullName()
+        meetMinutDTO.setChairPerson(meetMinut.getChairPerson().getFullName());
         meetMinutDTO.setPropositions(meetMinut.getPropositions());
         meetMinutDTO.setDecisions(meetMinut.getDecisions());
         meetMinutDTO.setStatus(meetMinut.getStatus());
         meetMinutDTO.setRemarks(meetMinut.getRemarks());
-        meetMinutDTO.setInsertUser(meetMinut.getInsertUser().getUserName()); // Changed getUsername() to getUserName()
+        meetMinutDTO.setInsertUser(meetMinut.getInsertUser() != null ? meetMinut.getInsertUser().getUserName() : null);
         meetMinutDTO.setInsertDate(meetMinut.getInsertDate());
-        meetMinutDTO.setEditUser(meetMinut.getEditUser() != null ? meetMinut.getEditUser().getUserName() : null); // Changed getUsername() to getUserName()
+        meetMinutDTO.setEditUser(meetMinut.getEditUser() != null ? meetMinut.getEditUser().getUserName() : null);
         meetMinutDTO.setEditDate(meetMinut.getEditDate());
         return meetMinutDTO;
     }

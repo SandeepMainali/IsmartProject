@@ -8,8 +8,11 @@ public class MemberDTO {
     private Long id;
     private String fullName;
     private String fullNameLocale;
-    private Long genderId;
-    private Long memTypeId;
+
+    // Changed from Integer to Long
+    private Long genderId;        // Matches Gender entity's Long ID
+    private Long memTypeId;       // Matches MemType entity's Long ID
+
     private String mintDepartId;
     private String mintMemDegId;
     private Long ethnicityId;

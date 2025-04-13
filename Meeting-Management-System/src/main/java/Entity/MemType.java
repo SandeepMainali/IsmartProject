@@ -6,8 +6,9 @@ import java.time.ZonedDateTime;
 
 @Data
 @Entity
-@Table(name ="mem_types", schema ="minut")
+@Table(name = "mem_types", schema = "minut")
 public class MemType {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,14 +22,14 @@ public class MemType {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "status", nullable = false)
+    @Column(name = "status")
     private Boolean status = true;
 
     @Column(name = "remarks")
     private String remarks;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "insert_user", nullable = false)
+    @JoinColumn(name = "insert_user")
     private User insertUser;
 
     @Column(name = "insert_date", nullable = false, updatable = false)
@@ -40,4 +41,12 @@ public class MemType {
 
     @Column(name = "edit_date")
     private ZonedDateTime editDate;
+
+    // Automatically set insert date before persisting
+    @PrePersist
+    protected void onCreate() {
+        if (insertDate == null) {
+            insertDate = ZonedDateTime.now();
+        }
+    }
 }

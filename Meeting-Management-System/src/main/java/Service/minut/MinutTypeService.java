@@ -7,10 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import Repository.MinutTypeRepo;
 import Repository.UserRepo;
+import exception.ResourceNotFoundException;
 
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,70 +22,100 @@ public class MinutTypeService {
     @Autowired
     private UserRepo userRepo;
 
-    // Method to get all MinutType records
+    // Get all minute types
     public List<MinutTypeDTO> getAllMinutTypes() {
-        List<MinutType> minutTypes = minutTypeRepo.findAll();
-        return minutTypes.stream().map(this::convertToDTO).collect(Collectors.toList());
+        try {
+            List<MinutType> minutTypes = minutTypeRepo.findAll();
+            return minutTypes.stream().map(this::convertToDTO).collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new ResourceNotFoundException("Error retrieving minute types: " + e.getMessage());
+        }
     }
 
-    // Method to get MinutType by ID
+    // Get by ID
     public MinutTypeDTO getMinutTypeById(Long id) {
-        MinutType minutType = minutTypeRepo.findById(id).orElseThrow(() -> new RuntimeException("MinutType not found"));
-        return convertToDTO(minutType);
+        try {
+            MinutType minutType = minutTypeRepo.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Minute type not found with ID: " + id));
+            return convertToDTO(minutType);
+        } catch (ResourceNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ResourceNotFoundException("Error retrieving minute type: " + e.getMessage());
+        }
     }
 
-    // Method to create a new MinutType
-    public MinutTypeDTO createMinutType(MinutTypeDTO minutTypeDTO) {
-        MinutType minutType = new MinutType();
-        minutType.setMinuteName(minutTypeDTO.getMinuteName());
-        minutType.setMituteTypeLocale(minutTypeDTO.getMituteTypeLocale());
-        minutType.setDescription(minutTypeDTO.getDescription());
-        minutType.setStatus(minutTypeDTO.getStatus() != null ? minutTypeDTO.getStatus() : true);
-        minutType.setRemarks(minutTypeDTO.getRemarks());
-        minutType.setInsertDate(ZonedDateTime.now());
+    // Create
+    public MinutTypeDTO createMinutType(MinutTypeDTO dto) {
+        dto.validateForCreate();
+        try {
+            MinutType minutType = new MinutType();
+            minutType.setMinuteName(dto.getMinuteName());
+            minutType.setMituteTypeLocale(dto.getMituteTypeLocale());
+            minutType.setDescription(dto.getDescription());
+            minutType.setStatus(dto.getStatus() != null ? dto.getStatus() : true);
+            minutType.setRemarks(dto.getRemarks());
+            minutType.setInsertDate(ZonedDateTime.now());
 
-        // Get current user - in a real app, you'd get this from security context
-        User currentUser = userRepo.findById(1L) // Replace with actual user ID
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        minutType.setInsertUser(currentUser);
+            // Replace with real user from auth context
+            User currentUser = userRepo.findById(1L)
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+            minutType.setInsertUser(currentUser);
 
-        minutType = minutTypeRepo.save(minutType);
-        return convertToDTO(minutType);
+            minutType = minutTypeRepo.save(minutType);
+            return convertToDTO(minutType);
+        } catch (Exception e) {
+            throw new ResourceNotFoundException("Error creating minute type: " + e.getMessage());
+        }
     }
 
-    // Method to update an existing MinutType
-    public MinutTypeDTO updateMinutType(Long id, MinutTypeDTO minutTypeDTO) {
-        MinutType minutType = minutTypeRepo.findById(id).orElseThrow(() -> new RuntimeException("MinutType not found"));
-        minutType.setMinuteName(minutTypeDTO.getMinuteName());
-        minutType.setMituteTypeLocale(minutTypeDTO.getMituteTypeLocale());
-        minutType.setDescription(minutTypeDTO.getDescription());
-        minutType.setStatus(minutTypeDTO.getStatus());
-        minutType.setRemarks(minutTypeDTO.getRemarks());
-        minutType.setEditDate(ZonedDateTime.now());
-        minutType.setEditUser(null); // Assuming you'd set the logged-in user
-        minutType = minutTypeRepo.save(minutType);
-        return convertToDTO(minutType);
+    // Update
+    public MinutTypeDTO updateMinutType(Long id, MinutTypeDTO dto) {
+        dto.validateForUpdate();
+        try {
+            MinutType minutType = minutTypeRepo.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Minute type not found with ID: " + id));
+
+            if (dto.getMinuteName() != null) minutType.setMinuteName(dto.getMinuteName());
+            if (dto.getMituteTypeLocale() != null) minutType.setMituteTypeLocale(dto.getMituteTypeLocale());
+            if (dto.getDescription() != null) minutType.setDescription(dto.getDescription());
+            if (dto.getStatus() != null) minutType.setStatus(dto.getStatus());
+            if (dto.getRemarks() != null) minutType.setRemarks(dto.getRemarks());
+
+            minutType.setEditDate(ZonedDateTime.now());
+
+            // Replace with actual user from security
+            User currentUser = userRepo.findById(1L)
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+            minutType.setEditUser(currentUser);
+
+            minutType = minutTypeRepo.save(minutType);
+            return convertToDTO(minutType);
+        } catch (Exception e) {
+            throw new ResourceNotFoundException("Error updating minute type: " + e.getMessage());
+        }
     }
 
-    // Method to delete a MinutType by ID
-    public void deleteMinutType(Long id) {
-        MinutType minutType = minutTypeRepo.findById(id).orElseThrow(() -> new RuntimeException("MinutType not found"));
-        minutTypeRepo.delete(minutType);
-    }
-
-    // Convert Entity to DTO
+    // Helper: convert Entity -> DTO
     private MinutTypeDTO convertToDTO(MinutType minutType) {
-        MinutTypeDTO minutTypeDTO = new MinutTypeDTO();
-        minutTypeDTO.setId(minutType.getId());
-        minutTypeDTO.setMinuteName(minutType.getMinuteName());
-        minutTypeDTO.setMituteTypeLocale(minutType.getMituteTypeLocale());
-        minutTypeDTO.setDescription(minutType.getDescription());
-        minutTypeDTO.setStatus(minutType.getStatus());
-        minutTypeDTO.setRemarks(minutType.getRemarks());
-        minutTypeDTO.setInsertUser(minutType.getInsertUser() != null ? minutType.getInsertUser().getUserName() : null);
-        minutTypeDTO.setInsertDate(minutType.getInsertDate());
-        minutTypeDTO.setEditUser(minutType.getEditUser() != null ? minutType.getEditUser().getUserName() : null);
-        minutTypeDTO.setEditDate(minutType.getEditDate());
-        return minutTypeDTO;
+        MinutTypeDTO dto = new MinutTypeDTO();
+        dto.setId(minutType.getId());
+        dto.setMinuteName(minutType.getMinuteName());
+        dto.setMituteTypeLocale(minutType.getMituteTypeLocale());
+        dto.setDescription(minutType.getDescription());
+        dto.setStatus(minutType.getStatus());
+        dto.setRemarks(minutType.getRemarks());
+
+        if (minutType.getInsertUser() != null)
+            dto.setInsertUser(minutType.getInsertUser().getUserName());
+
+        dto.setInsertDate(minutType.getInsertDate());
+
+        if (minutType.getEditUser() != null)
+            dto.setEditUser(minutType.getEditUser().getUserName());
+
+        dto.setEditDate(minutType.getEditDate());
+
+        return dto;
     }
 }

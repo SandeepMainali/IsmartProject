@@ -15,33 +15,33 @@ public class MeetAttendance {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "meet_id", nullable = false)
+    @JoinColumn(name = "meet_id", nullable = true)
     private MeetMinut meetMinut;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "mint_member_id", nullable = false)
+    @JoinColumn(name = "mint_member_id", nullable = true)
     private Member mintMember;
 
-    @Column(name = "is_attendant")
+    @Column(name = "is_attendant", nullable=true)
     private Boolean isAttendant;
 
-    @Column(name = "status", nullable = false)
+    @Column(name = "status", nullable = true)
     private Boolean status = true;
 
-    @Column(name = "remarks")
+    @Column(name = "remarks", nullable = true)
     private String remarks;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "insert_user", nullable = false)
+    @JoinColumn(name = "insert_user", nullable = true)
     private User insertUser;
 
-    @Column(name = "insert_date", nullable = false, updatable = false)
+    @Column(name = "insert_date", nullable = true, updatable = false)
     private ZonedDateTime insertDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "edit_user")
+    @JoinColumn(name = "edit_user", nullable = true)
     private User editUser;
 
-    @Column(name = "edit_date")
+    @Column(name = "edit_date", nullable = true)
     private ZonedDateTime editDate;
 }
