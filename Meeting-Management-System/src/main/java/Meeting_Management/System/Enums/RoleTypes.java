@@ -1,9 +1,9 @@
 package Meeting_Management.System.Enums;
 
 public enum RoleTypes {
-//    SUPER_ADMIN("SUPER_ADMIN", "Super Administrator"),
-    ADMIN("ADMIN", "Administrator"),
-    USER("USER", "Regular User");
+    SUPER_ADMIN("superadmin", "SUPER ADMIN"),
+    ADMIN("admin", "ADMINISTRATOR"),
+    USER("user", "Regular User");
 
     private final String code;
     private final String description;

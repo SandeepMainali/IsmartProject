@@ -70,7 +70,7 @@ public class UserController {
             return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    
     @PutMapping("/update/{id}")
     public ResponseEntity<ResponseDTO> updateUser(@PathVariable Integer id, @RequestBody UserDTO userDTO) {
         try {

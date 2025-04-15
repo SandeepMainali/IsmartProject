@@ -22,13 +22,13 @@ public class Role {
     private String remarks;
 
     @Column(name = "insert_user")
-    private Integer insertUser;
+    private String insertUser;
 
     @Column(name = "insert_date", nullable = false, updatable = false)
     private ZonedDateTime insertDate;
 
     @Column(name = "edit_user")
-    private Integer editUser;
+    private String editUser;
 
     @Column(name = "edit_date")
     private ZonedDateTime editDate;

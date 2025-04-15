@@ -56,4 +56,8 @@ public class ConvertUtility {
         rolesDTO.setEditDate(role.getEditDate());
         return rolesDTO;
     }
+
+    public static List<RolesDTO> ConvertUtilityRolesList(List<Role> rolesList) {
+        return rolesList.stream().map(ConvertUtility::ConvertUtilityRoles).collect(Collectors.toList());
+    }
 }
