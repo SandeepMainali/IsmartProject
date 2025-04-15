@@ -9,6 +9,7 @@ import Meeting_Management.System.Entity.BranchInfo;
 import Meeting_Management.System.Entity.Gender;
 import Meeting_Management.System.Entity.Role;
 import Meeting_Management.System.Entity.User;
+import Meeting_Management.System.Filter.JWTFilter;
 import Meeting_Management.System.Repository.BranchInfoRepo;
 import Meeting_Management.System.Repository.GenderRepo;
 import Meeting_Management.System.Repository.RolesRepo;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.security.MessageDigest;
@@ -96,6 +98,8 @@ public class UserServiceImpl implements UserService {
         Optional<Role> role = rolesRepo.findById(userDTO.getRoleId());
         Optional<Gender> gender = genderRepo.findById(userDTO.getGenderId());
 
+        String createdBy = getCurrentUsername();
+
         try{
         if (branchInfo.isEmpty()) {
             return new ResponseDTO("Error", "E0000", "Branch ID Is Invalid", null, null);
@@ -136,7 +140,7 @@ public class UserServiceImpl implements UserService {
             }
         }
 
-        user.setInsertUser(userDTO.getInsertUser());
+        user.setInsertUser(createdBy);
         user.setInsertDate(ZonedDateTime.now());
 
             User savedUser = userRepo.save(user);
@@ -152,6 +156,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseDTO updateUser(UserDTO userDTO) {
         Optional<User> existingUserOpt = userRepo.findById(userDTO.getId());
+        String editedBy = getCurrentUsername();
 
         if (existingUserOpt.isEmpty()) {
             return null;
@@ -218,7 +223,7 @@ public class UserServiceImpl implements UserService {
                 existingUser.setRemarks(userDTO.getRemarks());
             }
 
-            existingUser.setEditUser(userDTO.getEditUser());
+            existingUser.setEditUser(editedBy);
             existingUser.setEditDate(ZonedDateTime.now());
 
             User updatedUser = userRepo.save(existingUser);
@@ -321,4 +326,11 @@ public class UserServiceImpl implements UserService {
         return new ResponseDTO("M0000", "M0000", "Login Successfully", detail, null);
     }
 
+    private String getCurrentUsername() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            return authentication.getName();
+        }
+        return "system";
+    }
 }

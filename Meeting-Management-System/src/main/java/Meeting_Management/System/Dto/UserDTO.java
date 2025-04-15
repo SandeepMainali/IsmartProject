@@ -25,8 +25,8 @@ public class UserDTO {
     private Boolean status;
     private ZonedDateTime deactiveDate;
     private String remarks;
-    private Integer insertUser;
+    private String insertUser;
     private ZonedDateTime insertDate;
-    private Integer editUser;
+    private String editUser;
     private ZonedDateTime editDate;
 }
