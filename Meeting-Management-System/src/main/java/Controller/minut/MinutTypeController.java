@@ -109,7 +109,7 @@ public class MinutTypeController {
     }
 
     // Create a new MinutType
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<Object> createMinutType(@RequestBody MinutTypeDTO minutTypeDTO) {
         try {
             // Validate request data

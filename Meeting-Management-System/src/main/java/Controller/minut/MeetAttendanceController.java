@@ -107,7 +107,7 @@ public class MeetAttendanceController {
         }
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<Object> createMeetAttendance(@RequestBody MeetAttendanceDTO dto) {
         try {
             // Validate request data

@@ -50,7 +50,7 @@ public class MeetMinutController {
     }
 
     // Create new MeetMinut
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<Object> createMeetMinut(@RequestBody MeetMinutDTO dto) {
         try {
             // Basic validation
