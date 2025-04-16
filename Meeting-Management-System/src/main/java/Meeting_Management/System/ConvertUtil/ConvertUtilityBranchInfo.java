@@ -126,9 +126,8 @@ public class ConvertUtilityBranchInfo {
                 .collect(Collectors.toList());
     }
 
-    public static BranchInfo updateBranchInfoFields(BranchInfo entity, BranchInfoDTO dto, BranchInfo parent) {
+    public static BranchInfo updateBranchInfoFields(BranchInfo entity, BranchInfoDTO dto) {
         entity.setIsCorporate(dto.getIsCorporate());
-        entity.setParentId(parent);
         entity.setBrAlias(dto.getBrAlias());
         entity.setFullName(dto.getFullName());
         entity.setFullNameLocale(dto.getFullNameLocale());

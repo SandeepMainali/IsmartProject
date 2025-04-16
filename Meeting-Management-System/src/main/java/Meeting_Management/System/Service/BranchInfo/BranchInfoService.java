@@ -338,25 +338,8 @@ public class BranchInfoService implements IBranchInfoService {
 
             BranchInfo existingBranchInfo = branchInfoOptional.get();
 
-            BranchInfo parent = null;
-            if(branchInfoDTO.getParentId() != null){
-                Optional<BranchInfo> parentBranchInfo = branchInfoRepository.findById(branchInfoDTO.getParentId());
-                if (parentBranchInfo.isPresent()) {
-                    parent = parentBranchInfo.get();
-                } else {
-                    System.out.println("No such parent branch found");
-                    return new ResponseDTO(
-                            "error",
-                            "404",
-                            "Parent branch not found with ID: " + branchInfoDTO.getParentId(),
-                            null,
-                            null
-                    );
-                }
-            }
-
             // Update the existing entity with values from DTO
-            BranchInfo updatedBranchInfo = ConvertUtilityBranchInfo.updateBranchInfoFields(existingBranchInfo, branchInfoDTO, parent);
+            BranchInfo updatedBranchInfo = ConvertUtilityBranchInfo.updateBranchInfoFields(existingBranchInfo, branchInfoDTO);
 
             // Set update timestamp
             updatedBranchInfo.setEditDate(ZonedDateTime.now());

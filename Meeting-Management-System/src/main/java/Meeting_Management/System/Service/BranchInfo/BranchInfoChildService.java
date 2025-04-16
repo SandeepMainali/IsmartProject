@@ -340,7 +340,7 @@ public class BranchInfoChildService implements IBranchInfoService {
             branchInfoDTO.setParentId(existingBranchInfo.getParentId().getId());
 
             // Update the existing entity with values from DTO
-            BranchInfo updatedBranchInfo = ConvertUtilityBranchInfo.updateBranchInfoFields(existingBranchInfo, branchInfoDTO, null);
+            BranchInfo updatedBranchInfo = ConvertUtilityBranchInfo.updateBranchInfoFields(existingBranchInfo, branchInfoDTO);
 
             // Set update timestamp
             updatedBranchInfo.setEditDate(ZonedDateTime.now());
@@ -356,7 +356,7 @@ public class BranchInfoChildService implements IBranchInfoService {
             return new ResponseDTO(
                     "success",
                     "200",
-                    "Parent branch updated successfully",
+                    "Child branch updated successfully",
                     null,
                     detail
             );
@@ -372,7 +372,7 @@ public class BranchInfoChildService implements IBranchInfoService {
             return new ResponseDTO(
                     "error",
                     "500",
-                    "Database error during parent branch update: " + e.getMessage(),
+                    "Database error during Child branch update: " + e.getMessage(),
                     null,
                     null
             );
@@ -380,7 +380,7 @@ public class BranchInfoChildService implements IBranchInfoService {
             return new ResponseDTO(
                     "error",
                     "500",
-                    "An unexpected error occurred during parent branch update: " + e.getMessage(),
+                    "An unexpected error occurred during Child branch update: " + e.getMessage(),
                     null,
                     null
             );
@@ -390,7 +390,7 @@ public class BranchInfoChildService implements IBranchInfoService {
     @Override
     @Transactional
     public ResponseDTO deleteBranchInfo(Integer id) {
-        String delete = null;
+        String delete;
         try {
             Optional<BranchInfo> branchInfoOptional = branchInfoRepository.findById(id);
 

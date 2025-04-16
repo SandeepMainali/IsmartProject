@@ -319,7 +319,7 @@ public class BranchInfoParentService implements IBranchInfoService {
             branchInfoDTO.setParentId(null);
 
             // Update the existing entity with values from DTO
-            BranchInfo updatedBranchInfo = ConvertUtilityBranchInfo.updateBranchInfoFields(existingBranchInfo, branchInfoDTO, null);
+            BranchInfo updatedBranchInfo = ConvertUtilityBranchInfo.updateBranchInfoFields(existingBranchInfo, branchInfoDTO);
 
             // Set update timestamp
             updatedBranchInfo.setEditDate(ZonedDateTime.now());
