@@ -25,4 +25,6 @@ public interface BranchInfoRepo extends JpaRepository<BranchInfo,Integer> {
     List<BranchInfo> findByParentIdIsNotNullOrderByParentIdId();
 
     List<BranchInfo> findByParentId(BranchInfo parentBranch);
+
+    Long countByStatusTrue();
 }
